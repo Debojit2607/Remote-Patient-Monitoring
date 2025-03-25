@@ -1,0 +1,50 @@
+import React, { useEffect, useState } from "react";
+
+const RemoteMonitoring = () => {
+  const [patients, setPatients] = useState([]);
+  const [name, setName] = useState("");
+  const [heartRate, setHeartRate] = useState("");
+  const [bloodPressure, setBloodPressure] = useState("");
+  const [oxygenLevel, setOxygenLevel] = useState("");
+
+  useEffect(() => {
+    fetch("http://localhost:5000/api/patients")
+      .then((res) => res.json())
+      .then((data) => setPatients(data));
+  }, []);
+
+  const addPatientData = () => {
+    fetch("http://localhost:5000/api/patients", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, heartRate, bloodPressure, oxygenLevel })
+    })
+    .then((res) => res.json())
+    .then((data) => setPatients(data));
+
+    setName("");
+    setHeartRate("");
+    setBloodPressure("");
+    setOxygenLevel("");
+  };
+
+  return (
+    <div className="p-4 max-w-md mx-auto">
+      <h1 className="text-2xl font-bold mb-4">Remote Patient Monitoring</h1>
+      <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="border p-2 rounded w-full mb-2" placeholder="Patient Name" />
+      <input type="number" value={heartRate} onChange={(e) => setHeartRate(e.target.value)} className="border p-2 rounded w-full mb-2" placeholder="Heart Rate (bpm)" />
+      <input type="text" value={bloodPressure} onChange={(e) => setBloodPressure(e.target.value)} className="border p-2 rounded w-full mb-2" placeholder="Blood Pressure (e.g., 120/80)" />
+      <input type="number" value={oxygenLevel} onChange={(e) => setOxygenLevel(e.target.value)} className="border p-2 rounded w-full mb-2" placeholder="Oxygen Level (%)" />
+      <button onClick={addPatientData} className="bg-blue-500 text-white px-4 py-2 rounded">Submit</button>
+      <ul className="mt-4">
+        {patients.map((patient, index) => (
+          <li key={index} className="p-2 border rounded mt-2">
+            <strong>{patient.name}</strong> - HR: {patient.heartRate} bpm, BP: {patient.bloodPressure}, O2: {patient.oxygenLevel}%
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default RemoteMonitoring;
